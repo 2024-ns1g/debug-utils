@@ -1,0 +1,66 @@
+/* 全体レイアウトのリセットと100vh設定 */
+html, body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ヘッダー部分 */
+#baseURL-container {
+  padding: 10px;
+  background: #eee;
+  border-bottom: 1px solid #ccc;
+  flex: 0 0 auto;
+}
+
+/* パネル全体のコンテナ */
+.container {
+  display: flex;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* 各パネル */
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-right: 1px solid #ccc;
+}
+
+.panel:last-child {
+  border-right: none;
+}
+
+.panel h2 {
+  margin: 0 0 5px;
+}
+
+/* 入力欄、ボタン */
+input, button {
+  padding: 5px;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* ログボックス：パネル内の残りの領域を占有し、内部でスクロール */
+.log {
+  flex: 1;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+  padding: 5px;
+  box-sizing: border-box;
+}

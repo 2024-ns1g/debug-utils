@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Session Worker デバッグツール</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="baseURL-container">
+    <label for="baseURL">Base URL:</label>
+    <input type="text" id="baseURL" value="http://localhost:3000">
+  </div>
+  <div class="container">
+    <div class="panel" id="panel-presenter">
+      <h2>Presenter</h2>
+      <label>OTP:</label><br>
+      <input type="text" id="otp-presenter" maxlength="6" placeholder="6桁のOTP"><br>
+      <button onclick="startConnection('presenter')">接続開始</button>
+      <div class="log" id="log-presenter"></div>
+    </div>
+    <div class="panel" id="panel-audience">
+      <h2>Audience</h2>
+      <label>OTP:</label><br>
+      <input type="text" id="otp-audience" maxlength="6" placeholder="6桁のOTP"><br>
+      <button onclick="startConnection('audience')">接続開始</button>
+      <div class="log" id="log-audience"></div>
+    </div>
+    <div class="panel" id="panel-agent">
+      <h2>Agent</h2>
+      <label>OTP:</label><br>
+      <input type="text" id="otp-agent" maxlength="6" placeholder="6桁のOTP"><br>
+      <button onclick="startConnection('agent')">接続開始</button>
+      <div class="log" id="log-agent"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
