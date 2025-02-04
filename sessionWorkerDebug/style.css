@@ -1,4 +1,4 @@
-/* 全体のリセット */
+/* 全体のリセットと100vh設定 */
 html, body {
   height: 100vh;
   margin: 0;
@@ -63,7 +63,7 @@ html, body {
   align-items: center;
   gap: 10px;
   flex-grow: 1;
-  justify-content: flex-end; /* 右寄せ */
+  justify-content: flex-end;
 }
 
 .header-actions button {
@@ -76,10 +76,8 @@ html, body {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
-  flex-grow: 0;
 }
 
-/* 入力フィールドの等分配置 */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -99,13 +97,38 @@ html, body {
   box-sizing: border-box;
 }
 
+/* 送信エリア */
+.send-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.send-controls label {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.send-controls input {
+  flex: 1;
+  padding: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.send-controls button {
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
 /* 接続状態インジケータ */
 .status {
   font-size: 14px;
   color: red;
 }
 
-/* ログボックス */
+/* ログボックス：パネル内の残り領域を占有し、内部でスクロール */
 .log {
   flex: 1;
   background: #f7f7f7;

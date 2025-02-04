@@ -1,3 +1,6 @@
+// 各パネルのWebSocketインスタンスを保持
+var sockets = {};
+
 function logMessage(role, message) {
   var logElem = document.getElementById('log-' + role);
   logElem.textContent += message + "\n";
@@ -35,9 +38,6 @@ async function startConnection(role) {
     var token = data.token;
     var aggregatorUrl = data.aggregatorUrl;
     logMessage(role, "OTP認証成功");
-    logMessage(role, "sessionId: " + sessionId);
-    logMessage(role, "token: " + token);
-    logMessage(role, "aggregatorUrl: " + aggregatorUrl);
     
     // WebSocket接続用URL作成
     var wsUrl = aggregatorUrl + "/" + role + "?sessionId=" + encodeURIComponent(sessionId);
@@ -46,7 +46,8 @@ async function startConnection(role) {
     
     ws.onopen = function() {
       logMessage(role, "WebSocket接続確立");
-      // 認証用メッセージ送信
+      // WebSocketインスタンスをグローバルに保存
+      sockets[role] = ws;
       var dataObj = { token: token };
       if (role === "agent") {
         var agentName = document.getElementById('agentName').value.trim();
@@ -82,4 +83,17 @@ async function startConnection(role) {
     statusElem.textContent = "エラー";
     statusElem.style.color = "red";
   }
+}
+
+function sendMessage(role) {
+  var input = document.getElementById('msg-' + role);
+  var message = input.value;
+  if (!message) return;
+  if (!sockets[role] || sockets[role].readyState !== WebSocket.OPEN) {
+    alert("WebSocketが接続されていません (" + role + ")");
+    return;
+  }
+  sockets[role].send(message);
+  logMessage(role, "送信: " + message);
+  input.value = "";
 }

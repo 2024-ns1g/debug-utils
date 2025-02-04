@@ -26,6 +26,11 @@
           <input type="text" id="otp-presenter" maxlength="6">
         </div>
       </div>
+      <div class="send-controls">
+        <label for="msg-presenter">メッセージ</label>
+        <input type="text" id="msg-presenter">
+        <button onclick="sendMessage('presenter')">送信</button>
+      </div>
       <div class="log" id="log-presenter"></div>
     </div>
     <!-- Audienceパネル -->
@@ -42,6 +47,11 @@
           <label for="otp-audience">OTP</label>
           <input type="text" id="otp-audience" maxlength="6">
         </div>
+      </div>
+      <div class="send-controls">
+        <label for="msg-audience">メッセージ</label>
+        <input type="text" id="msg-audience">
+        <button onclick="sendMessage('audience')">送信</button>
       </div>
       <div class="log" id="log-audience"></div>
     </div>
@@ -63,6 +73,11 @@
           <label for="agentName">Agent Name</label>
           <input type="text" id="agentName">
         </div>
+      </div>
+      <div class="send-controls">
+        <label for="msg-agent">メッセージ</label>
+        <input type="text" id="msg-agent">
+        <button onclick="sendMessage('agent')">送信</button>
       </div>
       <div class="log" id="log-agent"></div>
     </div>
