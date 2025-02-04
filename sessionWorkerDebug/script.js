@@ -13,6 +13,9 @@ async function startConnection(role) {
     return;
   }
   logMessage(role, "OTP認証開始…");
+  var statusElem = document.getElementById('status-' + role);
+  statusElem.textContent = "接続中";
+  statusElem.style.color = "green";
   try {
     // OTP認証用URL
     var verifyUrl = baseURL + "/session/" + role + "/verify";
@@ -23,6 +26,8 @@ async function startConnection(role) {
     });
     if (!res.ok) {
       logMessage(role, "OTP認証失敗: " + res.statusText);
+      statusElem.textContent = "未接続";
+      statusElem.style.color = "red";
       return;
     }
     var data = await res.json();
@@ -45,9 +50,8 @@ async function startConnection(role) {
       var dataObj = { token: token };
       if (role === "agent") {
         var agentName = document.getElementById('agentName').value.trim();
-        var agentType = document.getElementById('agentType').value.trim();
         dataObj.agentName = agentName;
-        dataObj.agentType = agentType;
+        dataObj.agentType = "SHOW_PRESENTATION_COMPUTER";
       }
       var msg = {
         requestType: "REGIST_" + role.toUpperCase(),
@@ -63,13 +67,19 @@ async function startConnection(role) {
     
     ws.onerror = function(error) {
       logMessage(role, "エラー: " + error);
+      statusElem.textContent = "エラー";
+      statusElem.style.color = "red";
     };
     
     ws.onclose = function() {
       logMessage(role, "WebSocket接続終了");
+      statusElem.textContent = "切断";
+      statusElem.style.color = "red";
     };
     
   } catch (error) {
     logMessage(role, "エラー: " + error);
+    statusElem.textContent = "エラー";
+    statusElem.style.color = "red";
   }
 }
