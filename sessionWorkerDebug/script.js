@@ -42,9 +42,16 @@ async function startConnection(role) {
     ws.onopen = function() {
       logMessage(role, "WebSocket接続確立");
       // 認証用メッセージ送信
+      var dataObj = { token: token };
+      if (role === "agent") {
+        var agentName = document.getElementById('agentName').value.trim();
+        var agentType = document.getElementById('agentType').value.trim();
+        dataObj.agentName = agentName;
+        dataObj.agentType = agentType;
+      }
       var msg = {
         requestType: "REGIST_" + role.toUpperCase(),
-        data: { token: token }
+        data: dataObj
       };
       ws.send(JSON.stringify(msg));
       logMessage(role, "認証メッセージ送信: " + JSON.stringify(msg));
