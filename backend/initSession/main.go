@@ -24,22 +24,6 @@ const (
 	colorWhite  = "\033[37m"
 )
 
-// API endpoints
-const (
-	baseURL                       = "http://localhost:8080"
-	registerURL                   = baseURL + "/auth/username/register"
-	createRoomURL                 = baseURL + "/room/create"
-	createSlideURLTemplate        = baseURL + "/room/%s/slide/create"
-	createPageURLTemplate         = baseURL + "/room/%s/slide/%s/page/create"
-	createScriptURLTemplate       = baseURL + "/room/%s/slide/%s/page/%s/script/create"
-	createVoteTemplateURLTemplate = baseURL + "/room/%s/slide/%s/vote/create"
-	createVoteOptionURLTemplate   = baseURL + "/room/%s/slide/%s/vote/%s/option/create"
-	startSessionURL               = baseURL + "/room/%s/slide/%s/session/create"
-	issueAgentOtpURL              = baseURL + "/room/%s/slide/%s/session/%s/agent/issue"
-	issueAudienceOtpURL           = baseURL + "/room/%s/slide/%s/session/%s/audience/issue"
-	issuePresenterOtpURL          = baseURL + "/room/%s/slide/%s/session/%s/presenter/issue"
-)
-
 // 各種Payload
 type UserRegistrationPayload struct {
 	Username string `json:"username"`
@@ -195,7 +179,8 @@ func printTable(headers []string, rows [][]string) {
 }
 
 func main() {
-	// Parse command-line flags with default values
+	// コマンドラインフラグの設定（新たに baseUrl フラグを追加）
+	baseUrlFlag := flag.String("baseUrl", "http://localhost:8080", "Base URL for the API endpoints")
 	username := flag.String("username", "test", "Username for registration")
 	password := flag.String("password", "test", "Password for registration")
 	roomName := flag.String("room", "test-room", "Name of the room")
@@ -204,6 +189,20 @@ func main() {
 	scriptContent := flag.String("script", "This is a test script", "Content of the script")
 
 	flag.Parse()
+
+	// API のエンドポイントを baseUrl から生成
+	baseURL := *baseUrlFlag
+	registerURL := baseURL + "/auth/username/register"
+	createRoomURL := baseURL + "/room/create"
+	createSlideURLTemplate := baseURL + "/room/%s/slide/create"
+	createPageURLTemplate := baseURL + "/room/%s/slide/%s/page/create"
+	createScriptURLTemplate := baseURL + "/room/%s/slide/%s/page/%s/script/create"
+	createVoteTemplateURLTemplate := baseURL + "/room/%s/slide/%s/vote/create"
+	createVoteOptionURLTemplate := baseURL + "/room/%s/slide/%s/vote/%s/option/create"
+	startSessionURL := baseURL + "/room/%s/slide/%s/session/create"
+	issueAgentOtpURL := baseURL + "/room/%s/slide/%s/session/%s/agent/issue"
+	issueAudienceOtpURL := baseURL + "/room/%s/slide/%s/session/%s/audience/issue"
+	issuePresenterOtpURL := baseURL + "/room/%s/slide/%s/session/%s/presenter/issue"
 
 	fmt.Println(colorGreen + "Initializing resources..." + colorReset)
 
@@ -419,7 +418,7 @@ func main() {
 		*slideName,
 	})
 
-	// ここで VoteTemplate と Option をまとめて表示
+	// VoteTemplate と Option の表示
 	for i, vt := range createdVoteTemplates {
 		// Template
 		rows = append(rows, []string{
