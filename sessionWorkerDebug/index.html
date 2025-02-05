@@ -26,11 +26,22 @@
           <input type="text" id="otp-presenter" maxlength="6">
         </div>
       </div>
+      <hr class="divider">
       <div class="send-controls">
-        <label for="msg-presenter">メッセージ</label>
-        <input type="text" id="msg-presenter">
+        <div class="input-group">
+          <label for="requestType-presenter">Request Type</label>
+          <input type="text" id="requestType-presenter" placeholder="例: CHANGE_CURRENT_PAGE">
+        </div>
+        <div class="input-group">
+          <label for="data-presenter">Data (JSON object)</label>
+          <textarea id="data-presenter" placeholder='{"newPageIndex": 2}'></textarea>
+        </div>
         <button onclick="sendMessage('presenter')">送信</button>
+        <!-- 追加: 履歴表示切り替えボタン -->
+        <button onclick="toggleHistoryPanel('presenter')">履歴を表示/隠す</button>
       </div>
+      <!-- 追加: 履歴エリア -->
+      <div class="history-panel" id="history-presenter"></div>
       <div class="log" id="log-presenter"></div>
     </div>
     <!-- Audienceパネル -->
@@ -48,11 +59,22 @@
           <input type="text" id="otp-audience" maxlength="6">
         </div>
       </div>
+      <hr class="divider">
       <div class="send-controls">
-        <label for="msg-audience">メッセージ</label>
-        <input type="text" id="msg-audience">
+        <div class="input-group">
+          <label for="requestType-audience">Request Type</label>
+          <input type="text" id="requestType-audience" placeholder="例: CHANGE_CURRENT_PAGE">
+        </div>
+        <div class="input-group">
+          <label for="data-audience">Data (JSON object)</label>
+          <textarea id="data-audience" placeholder='{"newPageIndex": 2}'></textarea>
+        </div>
         <button onclick="sendMessage('audience')">送信</button>
+        <!-- 追加: 履歴表示切り替えボタン -->
+        <button onclick="toggleHistoryPanel('audience')">履歴を表示/隠す</button>
       </div>
+      <!-- 追加: 履歴エリア -->
+      <div class="history-panel" id="history-audience"></div>
       <div class="log" id="log-audience"></div>
     </div>
     <!-- Agentパネル -->
@@ -74,11 +96,22 @@
           <input type="text" id="agentName">
         </div>
       </div>
+      <hr class="divider">
       <div class="send-controls">
-        <label for="msg-agent">メッセージ</label>
-        <input type="text" id="msg-agent">
+        <div class="input-group">
+          <label for="requestType-agent">Request Type</label>
+          <input type="text" id="requestType-agent" placeholder="例: CHANGE_CURRENT_PAGE">
+        </div>
+        <div class="input-group">
+          <label for="data-agent">Data (JSON object)</label>
+          <textarea id="data-agent" placeholder='{"newPageIndex": 2}'></textarea>
+        </div>
         <button onclick="sendMessage('agent')">送信</button>
+        <!-- 追加: 履歴表示切り替えボタン -->
+        <button onclick="toggleHistoryPanel('agent')">履歴を表示/隠す</button>
       </div>
+      <!-- 追加: 履歴エリア -->
+      <div class="history-panel" id="history-agent"></div>
       <div class="log" id="log-agent"></div>
     </div>
   </div>

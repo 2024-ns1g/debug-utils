@@ -1,4 +1,4 @@
-/* 全体のリセットと100vh設定 */
+/* 全体リセット・レイアウト */
 html, body {
   height: 100vh;
   margin: 0;
@@ -17,7 +17,6 @@ html, body {
   display: flex;
   align-items: center;
 }
-
 #baseURL-container label {
   margin-right: 8px;
 }
@@ -39,7 +38,6 @@ html, body {
   overflow: hidden;
   border-right: 1px solid #ccc;
 }
-
 .panel:last-child {
   border-right: none;
 }
@@ -51,13 +49,10 @@ html, body {
   justify-content: space-between;
   margin-bottom: 8px;
 }
-
 .panel-header h2 {
   margin: 0;
   font-size: 16px;
 }
-
-/* 右側のアクション（インジケータ＋ボタン） */
 .header-actions {
   display: flex;
   align-items: center;
@@ -65,61 +60,52 @@ html, body {
   flex-grow: 1;
   justify-content: flex-end;
 }
-
 .header-actions button {
   padding: 5px 10px;
   font-size: 14px;
 }
 
-/* 入力エリア */
+/* ログイン系入力エリア */
 .controls {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
 }
-
 .input-group {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
-
 .input-group label {
   font-size: 12px;
   margin-bottom: 2px;
 }
-
-.input-group input {
+.input-group input,
+.input-group textarea {
   padding: 5px;
   font-size: 14px;
-  flex-grow: 1;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* 送信エリア */
+/* 仕切り */
+.divider {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+
+/* 送信系入力エリア */
 .send-controls {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   margin-bottom: 8px;
 }
-
-.send-controls label {
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.send-controls input {
-  flex: 1;
-  padding: 5px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
 .send-controls button {
   padding: 5px 10px;
   font-size: 14px;
+  width: 100%;
 }
 
 /* 接続状態インジケータ */
@@ -128,7 +114,7 @@ html, body {
   color: red;
 }
 
-/* ログボックス：パネル内の残り領域を占有し、内部でスクロール */
+/* 受信ログエリア */
 .log {
   flex: 1;
   background: #f7f7f7;
@@ -138,4 +124,17 @@ html, body {
   font-size: 12px;
   padding: 5px;
   box-sizing: border-box;
+}
+
+/* 履歴エリア */
+.history-panel {
+  display: none; /* ボタンで切り替え */
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-bottom: 8px;
+  padding: 5px;
+  max-height: 100px;
+  overflow-y: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
 }

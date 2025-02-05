@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
-  "strings"
 )
 
 // ANSI escape codes for colors
@@ -37,45 +37,33 @@ const (
 	startSessionURL               = baseURL + "/room/%s/slide/%s/session/create"
 	issueAgentOtpURL              = baseURL + "/room/%s/slide/%s/session/%s/agent/issue"
 	issueAudienceOtpURL           = baseURL + "/room/%s/slide/%s/session/%s/audience/issue"
-  issuePresenterOtpURL          = baseURL + "/room/%s/slide/%s/session/%s/presenter/issue"
+	issuePresenterOtpURL          = baseURL + "/room/%s/slide/%s/session/%s/presenter/issue"
 )
 
-// UserRegistrationPayload represents the payload for user registration
+// 各種Payload
 type UserRegistrationPayload struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
-
-// RoomCreationPayload represents the payload for room creation
 type RoomCreationPayload struct {
 	DisplayName string `json:"displayName"`
 }
-
-// SlideCreationPayload represents the payload for slide creation
 type SlideCreationPayload struct {
 	DisplayName string `json:"displayName"`
 	Summary     string `json:"summary"`
 }
-
-// PageCreationPayload represents the payload for page creation
 type PageCreationPayload struct {
 	Content string `json:"content"`
 }
-
-// ScriptCreationPayload represents the payload for script creation
 type ScriptCreationPayload struct {
 	ScriptContent string `json:"scriptContent"`
 }
-
-// VoteTemplateCreationPayload represents the payload for vote template creation
 type VoteTemplateCreationPayload struct {
 	SlideId  string `json:"slideId"`
 	Index    int    `json:"index,omitempty"`
 	Title    string `json:"title"`
 	Question string `json:"question"`
 }
-
-// VoteOptionCreationPayload represents the payload for vote option creation
 type VoteOptionCreationPayload struct {
 	TemplateId      string `json:"templateId"`
 	Index           int    `json:"index,omitempty"`
@@ -84,19 +72,25 @@ type VoteOptionCreationPayload struct {
 	BackgroundColor string `json:"backgroundColor,omitempty"`
 	BorderColor     string `json:"borderColor,omitempty"`
 }
-
 type SessionCreationPayload struct {
 	SessionId string `json:"sessionId"`
 }
-
 type OtpIssuePayload struct {
 	Otp string `json:"otp"`
+}
+
+// VoteTemplateInfo - 投票テンプレートと、その下にあるオプションのIDをまとめて保持
+type VoteTemplateInfo struct {
+	ID        string
+	Title     string
+	Question  string
+	OptionIDs []string
 }
 
 // HTTPPost sends a POST request with optional Bearer token
 func HTTPPost(url string, payload interface{}, token string) ([]byte, error) {
 	var request *http.Request
-	var error error
+	var reqErr error
 
 	if payload != nil {
 		data, err := json.Marshal(payload)
@@ -104,12 +98,11 @@ func HTTPPost(url string, payload interface{}, token string) ([]byte, error) {
 			return nil, fmt.Errorf("failed to marshal payload: %w", err)
 		}
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
-
 		if req != nil {
 			request = req
 		}
 		if err != nil {
-			error = err
+			reqErr = err
 		}
 	} else {
 		req, err := http.NewRequest("POST", url, nil)
@@ -117,12 +110,12 @@ func HTTPPost(url string, payload interface{}, token string) ([]byte, error) {
 			request = req
 		}
 		if err != nil {
-			error = err
+			reqErr = err
 		}
 	}
 
-	if error != nil {
-		return nil, fmt.Errorf("failed to create request: %w", error)
+	if reqErr != nil {
+		return nil, fmt.Errorf("failed to create request: %w", reqErr)
 	}
 
 	request.Header.Set("Content-Type", "application/json")
@@ -163,14 +156,14 @@ func printTable(headers []string, rows [][]string) {
 		}
 	}
 
-	// Print table border
+	// Print top border
 	fmt.Print(colorCyan + "+")
-	for _, width := range widths {
-		fmt.Print("-" + strings.Repeat("-", width) + "-+")
+	for _, w := range widths {
+		fmt.Print("-" + strings.Repeat("-", w) + "-+")
 	}
 	fmt.Println(colorReset)
 
-	// Print headers
+	// Print header row
 	fmt.Print(colorCyan + "|")
 	for i, header := range headers {
 		fmt.Printf(" %-*s |", widths[i], header)
@@ -179,12 +172,12 @@ func printTable(headers []string, rows [][]string) {
 
 	// Print separator
 	fmt.Print(colorCyan + "+")
-	for _, width := range widths {
-		fmt.Print("-" + strings.Repeat("-", width) + "-+")
+	for _, w := range widths {
+		fmt.Print("-" + strings.Repeat("-", w) + "-+")
 	}
 	fmt.Println(colorReset)
 
-	// Print rows
+	// Print all data rows
 	for _, row := range rows {
 		fmt.Print(colorCyan + "|")
 		for i, cell := range row {
@@ -193,10 +186,10 @@ func printTable(headers []string, rows [][]string) {
 		fmt.Println(colorReset)
 	}
 
-	// Print table border
+	// Print bottom border
 	fmt.Print(colorCyan + "+")
-	for _, width := range widths {
-		fmt.Print("-" + strings.Repeat("-", width) + "-+")
+	for _, w := range widths {
+		fmt.Print("-" + strings.Repeat("-", w) + "-+")
 	}
 	fmt.Println(colorReset)
 }
@@ -257,7 +250,7 @@ func main() {
 	json.Unmarshal(slideResponse, &slideData)
 	slideID := slideData["slideId"]
 
-	// Step 4: Create multiple pages with long Markdown content
+	// Step 4: Create multiple pages with Markdown content
 	pageContents := []string{
 		"# Page 1\n\nThis is the first page with some **Markdown** content.\n\n- Item 1\n- Item 2\n- Item 3",
 		"# Page 2\n\nThis is the second page with more **Markdown** content.\n\n- Item A\n- Item B\n- Item C",
@@ -285,20 +278,20 @@ func main() {
 		fmt.Printf(colorYellow+"Creating script for page %d...\n"+colorReset, i+1)
 		scriptURL := fmt.Sprintf(createScriptURLTemplate, roomID, slideID, pageID)
 		scriptPayload := ScriptCreationPayload{ScriptContent: *scriptContent}
-		scriptResponse, err := HTTPPost(scriptURL, scriptPayload, token)
+		_, err := HTTPPost(scriptURL, scriptPayload, token)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, colorRed+"Error creating script for page %d: %v\n"+colorReset, i+1, err)
 			os.Exit(1)
 		}
-		var scriptData map[string]string
-		json.Unmarshal(scriptResponse, &scriptData)
 	}
 
-	// Step 6: Create multiple vote templates and options for each page
+	// Step 6: Create multiple vote templates and options
 	voteTitles := []string{"Vote 1", "Vote 2", "Vote 3"}
 	voteQuestions := []string{"Is this the first vote?", "Is this the second vote?", "Is this the third vote?"}
 	voteOptionTitles := []string{"Option A", "Option B", "Option C"}
 	voteOptionDescriptions := []string{"First option", "Second option", "Third option"}
+
+	var createdVoteTemplates []VoteTemplateInfo
 
 	for i := range pageIDs {
 		fmt.Printf(colorYellow+"Creating vote template for page %d...\n"+colorReset, i+1)
@@ -315,9 +308,16 @@ func main() {
 		}
 		var voteTemplateData map[string]string
 		json.Unmarshal(voteTemplateResponse, &voteTemplateData)
-		voteTemplateID := voteTemplateData["id"]
+		voteTemplateID := voteTemplateData["id"] // CUIDなどのIDが入る想定
 
-		// Create vote options for each vote template
+		// VoteTemplateInfo を用意
+		tempInfo := VoteTemplateInfo{
+			ID:       voteTemplateID,
+			Title:    voteTitles[i],
+			Question: voteQuestions[i],
+		}
+
+		// Create vote options for the vote template
 		for j := range voteOptionTitles {
 			fmt.Printf(colorYellow+"Creating vote option %d for vote template %d...\n"+colorReset, j+1, i+1)
 			voteOptionURL := fmt.Sprintf(createVoteOptionURLTemplate, roomID, slideID, voteTemplateID)
@@ -333,7 +333,12 @@ func main() {
 			}
 			var voteOptionData map[string]string
 			json.Unmarshal(voteOptionResponse, &voteOptionData)
+			optionID := voteOptionData["id"] // CUIDなどのIDが入る想定
+
+			tempInfo.OptionIDs = append(tempInfo.OptionIDs, optionID)
 		}
+
+		createdVoteTemplates = append(createdVoteTemplates, tempInfo)
 	}
 
 	// Step 7: Start session
@@ -351,7 +356,7 @@ func main() {
 
 	// Step 8: Issue agent OTP
 	fmt.Println(colorYellow + "Issuing agent OTP..." + colorReset)
-	time.Sleep(2 * time.Second) // Wait for 2 seconds before issuing OTP
+	time.Sleep(2 * time.Second)
 	agentOtpURL := fmt.Sprintf(issueAgentOtpURL, roomID, slideID, sessionID)
 	agentOtpResponse, err := HTTPPost(agentOtpURL, nil, token)
 	if err != nil {
@@ -364,7 +369,7 @@ func main() {
 
 	// Step 9: Issue audience OTP
 	fmt.Println(colorYellow + "Issuing audience OTP..." + colorReset)
-	time.Sleep(2 * time.Second) // Wait for 2 seconds before issuing OTP
+	time.Sleep(2 * time.Second)
 	audienceOtpURL := fmt.Sprintf(issueAudienceOtpURL, roomID, slideID, sessionID)
 	audienceOtpResponse, err := HTTPPost(audienceOtpURL, nil, token)
 	if err != nil {
@@ -375,32 +380,88 @@ func main() {
 	json.Unmarshal(audienceOtpResponse, &audienceOtpData)
 	audienceOtp := audienceOtpData["otp"]
 
-  // Step 10: Issue presenter OTP
-  fmt.Println(colorYellow + "Issuing presenter OTP..." + colorReset)
-  time.Sleep(2 * time.Second) // Wait for 2 seconds before issuing OTP
-  presenterOtpURL := fmt.Sprintf(issuePresenterOtpURL, roomID, slideID, sessionID)
-  presenterOtpResponse, err := HTTPPost(presenterOtpURL, nil, token)
-  if err != nil {
-    fmt.Fprintf(os.Stderr, colorRed+"Error issuing presenter OTP: %v\n"+colorReset, err)
-    os.Exit(1)
-  }
-  var presenterOtpData map[string]string
-  json.Unmarshal(presenterOtpResponse, &presenterOtpData)
-  presenterOtp := presenterOtpData["otp"]
+	// Step 10: Issue presenter OTP
+	fmt.Println(colorYellow + "Issuing presenter OTP..." + colorReset)
+	time.Sleep(2 * time.Second)
+	presenterOtpURL := fmt.Sprintf(issuePresenterOtpURL, roomID, slideID, sessionID)
+	presenterOtpResponse, err := HTTPPost(presenterOtpURL, nil, token)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, colorRed+"Error issuing presenter OTP: %v\n"+colorReset, err)
+		os.Exit(1)
+	}
+	var presenterOtpData map[string]string
+	json.Unmarshal(presenterOtpResponse, &presenterOtpData)
+	presenterOtp := presenterOtpData["otp"]
 
-	// Print summary table
+	// ==========================================================
+	// 最後にすべてまとめたサマリーテーブルを出力
+	// ==========================================================
+
 	headers := []string{"Resource", "ID", "Details"}
-	rows := [][]string{
-		{"User", *username, "Registered successfully"},
-		{"Room", roomID, *roomName},
-		{"Slide", slideID, *slideName},
-		{"Session", sessionID, "Started successfully"},
-		{"Agent OTP", agentOtp, "Issued successfully"},
-		{"Audience OTP", audienceOtp, "Issued successfully"},
-    {"Presenter OTP", presenterOtp, "Issued successfully"},
+	var rows [][]string
+
+	// ユーザ登録
+	rows = append(rows, []string{
+		"User",
+		*username,
+		"Registered successfully",
+	})
+	// ルーム
+	rows = append(rows, []string{
+		"Room",
+		roomID,
+		*roomName,
+	})
+	// スライド
+	rows = append(rows, []string{
+		"Slide",
+		slideID,
+		*slideName,
+	})
+
+	// ここで VoteTemplate と Option をまとめて表示
+	for i, vt := range createdVoteTemplates {
+		// Template
+		rows = append(rows, []string{
+			fmt.Sprintf("Vote Template %d", i+1),
+			vt.ID,
+			fmt.Sprintf("Title: %s / Q: %s", vt.Title, vt.Question),
+		})
+		// Options
+		for j, optID := range vt.OptionIDs {
+			rows = append(rows, []string{
+				fmt.Sprintf("Vote Option %d-%d", i+1, j+1),
+				optID,
+				fmt.Sprintf("Linked to Template %d", i+1),
+			})
+		}
 	}
 
-	printTable(headers, rows)
+	// セッション
+	rows = append(rows, []string{
+		"Session",
+		sessionID,
+		"Started successfully",
+	})
+	// Agent OTP
+	rows = append(rows, []string{
+		"Agent OTP",
+		agentOtp,
+		"Issued successfully",
+	})
+	// Audience OTP
+	rows = append(rows, []string{
+		"Audience OTP",
+		audienceOtp,
+		"Issued successfully",
+	})
+	// Presenter OTP
+	rows = append(rows, []string{
+		"Presenter OTP",
+		presenterOtp,
+		"Issued successfully",
+	})
 
+	printTable(headers, rows)
 	fmt.Println(colorGreen + "All resources created and OTPs issued successfully." + colorReset)
 }
