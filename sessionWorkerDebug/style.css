@@ -138,3 +138,26 @@ html, body {
   font-size: 12px;
   white-space: pre-wrap;
 }
+
+/* 履歴アイテム全体を横並びにし、左にメッセージ、右に再送ボタンという配置にする */
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0;
+  padding: 4px 0;
+  border-bottom: 1px dashed #ccc; /* 必要に応じて */
+}
+
+.history-info {
+  /* ボタンと幅を奪い合わないように flex:1 をつける */
+  flex: 1;
+  margin-right: 8px;
+  word-break: break-word; /* 長い文字列で崩れないように */
+}
+
+.history-action button {
+  /* 必要に応じてボタンの余白などを調整 */
+  padding: 4px 8px;
+  font-size: 12px;
+}

@@ -25,7 +25,6 @@ function saveMessageHistory(role, history) {
   localStorage.setItem(getHistoryKey(role), JSON.stringify(history));
 }
 
-// 履歴パネルを更新する
 function updateHistoryPanel(role) {
   var historyContainer = document.getElementById("history-" + role);
   if (!historyContainer) return;
@@ -36,21 +35,35 @@ function updateHistoryPanel(role) {
     return;
   }
 
-  // 履歴一覧を作成
-  // シンプルに「再送」ボタンを押すと入力欄に読み込まれる実装
-  var html = "";
+  // いったん空にしてから追加
+  historyContainer.innerHTML = "";
+
   history.forEach(function(msg, index) {
     var escapedReqType = escapeHtml(msg.requestType);
     var escapedData = JSON.stringify(msg.data);
-    // インデックスと合わせてボタン表示
-    html += 
-      "No." + (index + 1) + 
-      " [requestType]: " + escapedReqType +
-      " [data]: " + escapedData + 
-      " <button onclick='loadHistoryMessage(\"" + role + "\"," + index + ")'>再送</button><br>";
-  });
 
-  historyContainer.innerHTML = html;
+    // 履歴アイテム全体をラップするdiv
+    var itemDiv = document.createElement("div");
+    itemDiv.className = "history-item";
+
+    // 左側のテキスト部分
+    var infoDiv = document.createElement("div");
+    infoDiv.className = "history-info";
+    infoDiv.textContent =
+      "No." + (index + 1) + " [requestType]: " + escapedReqType + " [data]: " + escapedData;
+
+    // 右側の「再送」ボタン
+    var actionDiv = document.createElement("div");
+    actionDiv.className = "history-action";
+    actionDiv.innerHTML =
+      "<button onclick='loadHistoryMessage(\"" + role + "\"," + index + ")'>再送</button>";
+
+    // アイテムをまとめて格納
+    itemDiv.appendChild(infoDiv);
+    itemDiv.appendChild(actionDiv);
+
+    historyContainer.appendChild(itemDiv);
+  });
 }
 
 // 特殊文字のエスケープ
@@ -125,11 +138,11 @@ async function startConnection(role) {
     var token = data.token;
     var aggregatorUrl = data.aggregatorUrl;
     logMessage(role, "OTP認証成功");
-    
+
     var wsUrl = aggregatorUrl + "/" + role + "?sessionId=" + encodeURIComponent(sessionId);
     logMessage(role, "WebSocket接続: " + wsUrl);
     var ws = new WebSocket(wsUrl);
-    
+
     ws.onopen = function() {
       logMessage(role, "WebSocket接続確立");
       sockets[role] = ws;
@@ -146,23 +159,23 @@ async function startConnection(role) {
       ws.send(JSON.stringify(msg));
       logMessage(role, "認証メッセージ送信: " + JSON.stringify(msg));
     };
-    
+
     ws.onmessage = function(event) {
       logMessage(role, "受信: " + event.data);
     };
-    
+
     ws.onerror = function(error) {
       logMessage(role, "エラー: " + error);
       statusElem.textContent = "エラー";
       statusElem.style.color = "red";
     };
-    
+
     ws.onclose = function() {
       logMessage(role, "WebSocket接続終了");
       statusElem.textContent = "切断";
       statusElem.style.color = "red";
     };
-    
+
   } catch (error) {
     logMessage(role, "エラー: " + error);
     statusElem.textContent = "エラー";
@@ -186,7 +199,7 @@ function sendMessage(role) {
   var parsedData;
   try {
     parsedData = JSON.parse(dataText);
-  } catch(e) {
+  } catch (e) {
     alert("Dataは有効なJSONオブジェクトを入力してください");
     return;
   }
